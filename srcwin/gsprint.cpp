@@ -835,11 +835,9 @@ show_available_printers(void)
     int end = 0;
 
     if (rc) {
-        fprintf(stdout, "[\n");
         for (i=0; i<returned; i++) {
-           fprintf(stdout, "  \042%s\042%s\n", pri2[i].pPrinterName, i < returned - 1 ? "," : "");
+           fprintf(stdout, "%s\n", pri2[i].pPrinterName);
         }
-        fprintf(stdout, "]\n");
     }
     else {
         end = 1;
