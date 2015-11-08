@@ -1,56 +1,4 @@
-#  Copyright (C) 1993-2011, Ghostgum Software Pty Ltd.  All rights reserved.
-#  
-# This file is part of GSview.
-#  
-# This program is distributed with NO WARRANTY OF ANY KIND.  No author
-# or distributor accepts any responsibility for the consequences of using it,
-# or for whether it serves any particular purpose or works at all, unless he
-# or she says so in writing.  Refer to the GSview Licence (the "Licence") 
-# for full details.
-#  
-# Every copy of GSview must include a copy of the Licence, normally in a 
-# plain ASCII text file named LICENCE.  The Licence grants you the right 
-# to copy, modify and redistribute GSview, but only under certain conditions 
-# described in the Licence.  Among other things, the Licence requires that 
-# the copyright notice and this notice be preserved on all copies.
-
-# Windows makefile for GSview
-
-#################################################################
-# Windows
-
-# Edit VCVER and DEVBASE as required
-
-!if defined(_NMAKE_VER) && !defined(VCVER)
-!if "$(_NMAKE_VER)" == "162"
-VCVER=5
-!endif
-!if "$(_NMAKE_VER)" == "6.00.8168.0"
-VCVER=6
-!endif
-!if "$(_NMAKE_VER)" == "7.00.9466"
-VCVER=7
-!endif
-!if "$(_NMAKE_VER)" == "7.10.3077"
-VCVER=71
-!endif
-!if "$(_NMAKE_VER)" == "8.00.50727.42"
-VCVER=8
-!endif
-!if "$(_NMAKE_VER)" == "8.00.50727.762"
-VCVER=8
-!endif
-!if "$(_NMAKE_VER)" == "9.00.21022.08"
 VCVER=9
-!endif
-!if "$(_NMAKE_VER)" == "9.00.30729.01"
-VCVER=9
-!endif
-!endif
-
-!ifndef VCVER
-VCVER=71
-!endif
 
 # DEBUG=1 for Debugging options
 !ifndef DEBUG
@@ -91,8 +39,8 @@ DDKBASE=c:\winddk\3790
 DEVBASE=$(PROGRAMFILES)\Microsoft Visual Studio 8
 !endif
 !if $(VCVER) == 9
-DEVBASE=$(PROGRAMFILES)\Microsoft Visual Studio 9.0
-COMMONBASE=$(PROGRAMFILES)\Microsoft SDKs\Windows\v6.0A
+DEVBASE=$(PROGRAMFILES)\Microsoft Visual Studio 10.0
+COMMONBASE=$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A
 !endif
 !endif
 
@@ -255,7 +203,6 @@ CPPCOMP=$(CC) -I$(SRCDIR) -I$(SRCWINDIR) -I$(OBJDIR) $(CFLAGS) $(VIEWFLAGS)
 SRC=$(SRCDIR)\$(NUL)
 SRCWIN=$(SRCWINDIR)\$(NUL)
 SRCOS2=$(SRCOS2DIR)\$(NUL)
-SRCUNX=$(SRCUNX)\$(NUL)
 OD=$(OBJDIR)\$(NUL)
 BD=$(BINDIR)\$(NUL)
 OBJ=.obj
@@ -274,30 +221,59 @@ LCONSOLE=/SUBSYSTEM:CONSOLE
 LGUI=/SUBSYSTEM:WINDOWS
 LIBRSP=@$(OD)lib.rsp
 
-HDRSPLAT=$(SRCWIN)gvwin.h $(SRCWIN)gvwdib.h $(SRCWIN)gvwpdib.h $(SRCWIN)gvwgsver.h 
+HDRSPLAT=$(SRCWIN)gvwin.h $(SRCWIN)gvwdib.h $(SRCWIN)gvwpdib.h
 
 CP=copy
 RM=del
 
 
 
-target: all
+target: $(BD)gsprint.exe
 
 #################################################################
 # Common
 
-!include "$(SRC)common.mak"
-!include "$(SRC)gvcver.mak"
-DISTDIR=gsview-$(GSVIEW_DOT_VERSION)
 
 
 #################################################################
 # Windows files
 
-!include "$(SRCWIN)wincom.mak"
 
-$(BD)gsview$(WINEXT).exe: $(OBJS) $(OD)gsvw$(WINEXT)en.res $(SRCWIN)gvwin$(WINEXT).def $(OD)lib.rsp
-	$(LINK) $(DEBUGLINK) $(LGUI) $(LDEF)$(SRCWIN)gvwin$(WINEXT).def $(LOUT)$(BD)gsview$(WINEXT).exe $(OBJS) $(OD)gsvw$(WINEXT)en.res $(LIBRSP)
+
+$(OD)lib.rsp: makefile
+	echo "$(PLATLIBDIR)$(D)kernel32.lib" > $(OD)lib.rsp
+	echo "$(PLATLIBDIR)$(D)user32.lib" >> $(OD)lib.rsp
+	echo "$(PLATLIBDIR)$(D)gdi32.lib" >> $(OD)lib.rsp
+	echo "$(PLATLIBDIR)$(D)shell32.lib" >> $(OD)lib.rsp
+	echo "$(PLATLIBDIR)$(D)comdlg32.lib" >> $(OD)lib.rsp
+	echo "$(PLATLIBDIR)$(D)winspool.lib" >> $(OD)lib.rsp
+	echo "$(PLATLIBDIR)$(D)advapi32.lib" >> $(OD)lib.rsp
+	echo "$(PLATLIBDIR)$(D)ole32.lib" >> $(OD)lib.rsp
+	echo "$(PLATLIBDIR)$(D)uuid.lib" >> $(OD)lib.rsp
+	echo /NODEFAULTLIB:LIBC.lib >> $(OD)lib.rsp
+	echo "$(LIBDIR)$(D)libcmt.lib" >> $(OD)lib.rsp
+
+
+
+$(OD)gvwfile$(OBJ): $(SRCWIN)gvwfile.c $(SRC)gvcfile.h
+	$(COMP) $(FOO)gvwfile$(OBJ) $(CO) $(SRCWIN)gvwfile.c
+
+$(OD)gvwdib$(OBJ): $(SRCWIN)gvwdib.cpp $(HDRS)
+	$(COMP) $(FOO)gvwdib$(OBJ) $(CO) $(SRCWIN)gvwdib.cpp
+
+$(OD)gvwpdib$(OBJ): $(SRCWIN)gvwpdib.cpp $(HDRS)
+	$(COMP) $(FOO)gvwpdib$(OBJ) $(CO) $(SRCWIN)gvwpdib.cpp
+
+
+
+GSPRINTOBJS=$(OD)gsprint$(OBJ) $(OD)gvwfile$(OBJ) $(OD)gvwdib$(OBJ) $(OD)gvwpdib$(OBJ)
+
+$(BD)gsprint.exe: $(GSPRINTOBJS) $(OD)lib.rsp
+	$(LINK) $(DEBUGLINK) $(LCONSOLE) $(LOUT)$(BD)gsprint.exe $(GSPRINTOBJS) $(LIBRSP)
+
+$(OD)gsprint$(OBJ): $(SRCWIN)gsprint.cpp $(SRC)gvcfile.h $(SRCWIN)gvwdib.h $(SRCWIN)gvwpdib.h
+	mkdir $(OD)
+	$(CPPCOMP) $(FOO)gsprint$(OBJ) $(CO) $(SRCWIN)gsprint.cpp
 
 
 #################################################################

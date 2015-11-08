@@ -1,4 +1,0 @@
-LIBRARY SETUP2FR
-DESCRIPTION	'GSview Setup French Language Resources'
-DATA SINGLE SHARED
-EXPORTS  main

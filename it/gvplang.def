@@ -1,4 +1,0 @@
-LIBRARY GVPMIT
-DESCRIPTION	'GSview Italian Language Resources'
-DATA SINGLE SHARED
-EXPORTS  main

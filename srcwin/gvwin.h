@@ -43,7 +43,6 @@
 #include <io.h>
 #include <time.h>
 #include <process.h>
-#include "gsvver.h"
 #include "gvcrc.h"
 #ifdef _MSC_VER
 #define DLLEXPORT __declspec(dllimport)
@@ -63,11 +62,8 @@
 #define P5(t1,t2,t3,t4,t5) t1,t2,t3,t4,t5
 #define P6(t1,t2,t3,t4,t5,t6) t1,t2,t3,t4,t5,t6
 
-#include "errors.h"
-#include "iapi.h"
 #include "gdevdsp.h"
 
-#include "dscparse.h"
 #include "gvcfile.h"
 
 #ifndef NODEBUG_MALLOC
@@ -414,7 +410,6 @@ LONG SendDlgItemMessageLGetString(HWND hDlg, int id, UINT msg, WPARAM wParam,
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
-#include "gvcfn.h"    /* common function prototypes */
 #include "gvcbeta.h"  /* common function prototypes */
 #include "gvwgsver.h" /* common function prototypes */
 

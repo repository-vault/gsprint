@@ -1,4 +1,0 @@
-LIBRARY GVPMSE
-DESCRIPTION	'GSview Swedish Language Resources'
-DATA SINGLE SHARED
-EXPORTS  main

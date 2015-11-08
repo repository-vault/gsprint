@@ -1,4 +1,0 @@
-LIBRARY GVPMNL
-DESCRIPTION	'GSview Dutch Language Resources'
-DATA SINGLE SHARED
-EXPORTS  main
