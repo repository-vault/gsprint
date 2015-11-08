@@ -145,6 +145,9 @@ CPP = "$(COMPDIR)\x86_amd64\cl" $(CDEBUG)
 LINK = "$(COMPDIR)\x86_amd64\link"
 LIBDIR=$(COMPBASE)\lib\amd64
 PLATLIBDIR=$(COMPBASE)\PlatformSDK\Lib\AMD64
+
+
+
 !else
 !message Win64 compilation needs a different compiler
 !endif
@@ -228,6 +231,7 @@ RM=del
 
 
 
+
 target: $(BD)gsprint.exe
 
 #################################################################
@@ -265,14 +269,19 @@ $(OD)gvwpdib$(OBJ): $(SRCWIN)gvwpdib.cpp $(HDRS)
 	$(COMP) $(FOO)gvwpdib$(OBJ) $(CO) $(SRCWIN)gvwpdib.cpp
 
 
+$(BD):
+	if NOT EXIST "$@" mkdir "$@"
+$(OD):
+	if NOT EXIST "$@" mkdir "$@"
+
 
 GSPRINTOBJS=$(OD)gsprint$(OBJ) $(OD)gvwfile$(OBJ) $(OD)gvwdib$(OBJ) $(OD)gvwpdib$(OBJ)
 
-$(BD)gsprint.exe: $(GSPRINTOBJS) $(OD)lib.rsp
+$(BD)gsprint.exe: $(BD) $(GSPRINTOBJS) $(OD)lib.rsp
 	$(LINK) $(DEBUGLINK) $(LCONSOLE) $(LOUT)$(BD)gsprint.exe $(GSPRINTOBJS) $(LIBRSP)
 
-$(OD)gsprint$(OBJ): $(SRCWIN)gsprint.cpp $(SRC)gvcfile.h $(SRCWIN)gvwdib.h $(SRCWIN)gvwpdib.h
-	mkdir $(OD)
+
+$(OD)gsprint$(OBJ): $(OD) $(SRCWIN)gsprint.cpp $(SRC)gvcfile.h $(SRCWIN)gvwdib.h $(SRCWIN)gvwpdib.h
 	$(CPPCOMP) $(FOO)gsprint$(OBJ) $(CO) $(SRCWIN)gsprint.cpp
 
 
