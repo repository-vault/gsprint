@@ -89,6 +89,7 @@ typedef struct tagGSPRINT_OPTION {
     char document_name[MAXSTR];
     BOOL debug;
     BOOL debug_gdi;
+    BOOL list;
 } GSPRINT_OPTION;
 
 
@@ -97,6 +98,7 @@ void print_help()
 {
     fprintf(stdout, "\
 Usage:  gsprint [options] filename\n\
+ -list                  List all available printers\n\
  -mono                  Render in monochrome as 1bit/pixel\n\
  -grey or -gray         Render in greyscale as 8bits/pixel\n\
  -colour or -color      Render in colour as 24bits/pixel\n\
@@ -226,6 +228,9 @@ BOOL process_args(GSPRINT_OPTION *opt)
         }
         else if (strcmp(thisarg, "-debug") == 0) {
             opt->debug = TRUE;
+        }
+        else if (strcmp(thisarg, "-list") == 0) {
+            opt->list = TRUE;
         }
         else if (strcmp(thisarg, "-debug_gdi") == 0) {
             opt->debug_gdi = TRUE;
@@ -811,7 +816,7 @@ HDC open_printer(GSPRINT_OPTION *opt)
     return hdc;
 }
 
-void
+int
 show_available_printers(void)
 {
     LPBYTE data = NULL;
@@ -827,16 +832,22 @@ show_available_printers(void)
               NULL, 2, data, needed, &needed, &returned);
     }
     pri2 = (PRINTER_INFO_2 *)data;
-    fprintf(stderr, "Available printers:\n");
+    int end = 0;
+
     if (rc) {
+        fprintf(stdout, "[\n");
         for (i=0; i<returned; i++) {
-           fprintf(stderr, "  \042%s\042\n", pri2[i].pPrinterName);
+           fprintf(stdout, "  \042%s\042%s\n", pri2[i].pPrinterName, i < returned - 1 ? "," : "");
         }
+        fprintf(stdout, "]\n");
     }
-    else
+    else {
+        end = 1;
         printf("EnumPrinters() failed\n");
+    }
     if (data)
         free(data);
+    return end;
 }
 
 
@@ -867,7 +878,6 @@ void CheckProcess( void *dummy )
 int main(int argc, char *argv[])
 {
     GSPRINT_OPTION opt;
-    show_available_printers();
 
     memset(&opt, 0, sizeof(opt));
     opt.args_end = 0;
@@ -878,6 +888,10 @@ int main(int argc, char *argv[])
        return 1;
     if (!process_args(&opt))
        return 1;
+
+    if (opt.list) {
+        return show_available_printers();
+    }
 
     if (strlen(opt.gs) == 0) {
        fprintf(stdout, "You must use -ghostscript\n");
